@@ -1,6 +1,6 @@
 import express from 'express';
-import routes from './routes';
-import { PORT } from './utils/constants';
+import routes from '../routes';
+import { PORT } from '../utils/constants';
 
  class Server {
   private app: express.Application;
