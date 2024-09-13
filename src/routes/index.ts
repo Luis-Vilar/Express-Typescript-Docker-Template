@@ -1,4 +1,4 @@
 import homeRouter from "./v1/home";
-import userPublicRouter from "./v1/users.routes";
+import userRouter from "./v1/users.routes";
 
-export default [homeRouter, ...userPublicRouter];
+export default [homeRouter, ...userRouter];
