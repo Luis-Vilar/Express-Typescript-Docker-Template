@@ -28,8 +28,7 @@ export class UserLoginDTO {
 }
 
 export class UserResponseDTO {
-  userId: string;
+  userId: string
   name: string;
   email: string;
-  roleId: number;
 }
