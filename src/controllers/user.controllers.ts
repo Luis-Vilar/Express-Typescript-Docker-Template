@@ -4,6 +4,9 @@ import {
   getUsers,
   createUser,
 } from "../services/user.services";
+import { getRoleId } from "../services/rbac.services";
+
+import { hashSecret } from "../utils/bcrypt";
 
 export const getAllUsers = async (req: Request, res: Response) => {
   const users = await getUsers();
@@ -28,18 +31,24 @@ export const loginUser = async (req: Request, res: Response) => {
 };
 
 export const createNewUser = async (req: Request, res: Response) => {
-  const { name, email, password, roleId } = req.body;
-  if (!name || !email || !password) {
-    return res
-      .status(400)
-      .json({ message: "Name, email and password are required" });
+  try {
+    const { name, email, password } = req.body;
+    if (!name || !email || !password) {
+      return res
+        .status(400)
+        .json({ message: "Name, email and password are required" });
+    }
+    const roleId = await getRoleId("GUEST"); 
+    //todo : implement role assignment
+    //todo : implement email validation
+    const newUser = await createUser({
+      name,
+      email,
+      password: hashSecret(password),
+      roleId,
+    });
+    newUser && res.status(201).json(newUser);
+  } catch (error) {
+    res.status(500).json({ message: "Internal server error", error });
   }
-  //todo : implement password hashing
-  //todo : implement role assignment
-  //todo : implement email validation
-  const newUser = await createUser({ name, email, password, roleId });
-
-  newUser
-    ? res.status(201).json(newUser)
-    : res.status(400).json({ message: "User not created" });
 };
