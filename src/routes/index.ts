@@ -1,4 +1,17 @@
+import { Router } from "express";
+import { rbacMiddleware } from "../services/rbac.services";
 import homeRouter from "./v1/home";
-import userRouter from "./v1/users.routes";
+import { userPrivateRouter, userPublicRouter } from "./v1/users.routes";
 
-export default [homeRouter, ...userRouter];
+const privateRoutes = Router();
+privateRoutes.use(rbacMiddleware);
+// TODO: JWT Middleware HERE
+//PRIVATE ROUTES BEFORE RBAC AND JWT
+privateRoutes.use(userPrivateRouter);
+
+//PUBLIC ROUTES
+const publicRoutes = Router();
+publicRoutes.use(homeRouter);
+publicRoutes.use(userPublicRouter);
+
+export default [publicRoutes, privateRoutes];
