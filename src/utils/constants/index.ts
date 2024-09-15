@@ -1,12 +1,12 @@
 // Server Constants
-export const PORT : number = 3000;
+export const PORT : number = Number(process.env.PORT) ;
 
 
 // Database Constants
-export const DB_URL : string = process.env.DB_URL || 'postgres://postgres:password@localhost:5432/express-typescript';
+export const DATABASE_URL : string = process.env.DATABASE_URL 
 
 
 // General Constants
 export const JWT_SECRET : string = process.env.JWT_SECRET
-export const JWT_EXPIRATION : string = process.env.JWT_EXPIRATION || '1h';
+export const JWT_EXPIRES_IN : string = process.env.JWT_EXPIRES_IN ;
 
