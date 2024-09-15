@@ -21,6 +21,7 @@ export async function getUsers(): Promise<UserResponseDTO[]> {
       userId: true,
       name: true,
       email: true,
+      roleId: true,
       password: false,
     },
   });
@@ -41,6 +42,7 @@ async  function getUsersByName (name: string): Promise<UserResponseDTO[]> {
       userId: true,
       name: true,
       email: true,
+      roleId: true,
     },
     where: {
       name: {
