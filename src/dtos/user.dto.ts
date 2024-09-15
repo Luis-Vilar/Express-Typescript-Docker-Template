@@ -8,27 +8,7 @@ export class UserDTO implements User {
   roleId: number;
 }
 
-export class UserCreateDTO implements Partial<UserDTO> {
-  name: string;
-  email: string;
-  password: string;
-  roleId: number;
-}
-
-export class UserUpdateDTO implements Partial<UserDTO> {
-  name?: string;
-  email?: string;
-  password?: string;
-  roleId?: number;
-}
-
-export class UserLoginDTO {
-  email: string;
-  password: string;
-}
-
-export class UserResponseDTO {
-  userId: string
-  name: string;
-  email: string;
-}
+export type UserCreateDTO = Omit<UserDTO, "userId">;
+export type UserUpdateDTO = Partial<UserCreateDTO>;
+export type UserLoginDTO = Pick<UserDTO, "email" | "password">;
+export type UserResponseDTO = Omit<UserDTO, "password">;
