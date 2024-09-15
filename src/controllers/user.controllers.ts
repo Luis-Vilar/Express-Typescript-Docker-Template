@@ -6,9 +6,13 @@ import {
 } from "../services/user.services";
 import { getRoleId } from "../services/rbac.services";
 
-import { hashSecret } from "../utils/bcrypt";
+import { hashSecret, compareSecret } from "../utils/bcrypt";
+import {generateToken} from '../services/jwt.services'
+import { $Enums } from "@prisma/client";
 
-export const getAllUsers = async (req: Request, res: Response) => {
+
+export const getAllUsers = async (req: any, res: Response) => {
+ 
   const users = await getUsers();
   users?.length > 0
     ? res.status(200).json(users)
@@ -22,9 +26,19 @@ export const loginUser = async (req: Request, res: Response) => {
   }
   const user = await getUserByEmail(email);
 
-  if (user && user.password === password) {
+  if (user && compareSecret(password, user.password)) {
     //todo : implement password hashing and jwt
-    res.status(200).json(user);
+    const payload ={
+      sub : user.userId,
+      roleId : user.roleId,
+      name : user.name
+    }
+    const token = generateToken(payload);
+    res.status(200).json({
+      message: "Login successful",
+      token,
+      status: 200,
+    });
   } else {
     res.status(404).json({ message: "Invalid email or password" });
   }
