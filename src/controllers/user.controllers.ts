@@ -7,12 +7,12 @@ import {
 import { getRoleId } from "../services/rbac.services";
 
 import { hashSecret, compareSecret } from "../utils/bcrypt";
-import {generateToken} from '../services/jwt.services'
+import { generateToken } from "../services/jwt.services";
 import { $Enums } from "@prisma/client";
-
+import { errorHandler } from "../services/error.services";
+import { UserCreateDTO } from "../dtos/user.dto";
 
 export const getAllUsers = async (req: any, res: Response) => {
- 
   const users = await getUsers();
   users?.length > 0
     ? res.status(200).json(users)
@@ -27,12 +27,11 @@ export const loginUser = async (req: Request, res: Response) => {
   const user = await getUserByEmail(email);
 
   if (user && compareSecret(password, user.password)) {
-    //todo : implement password hashing and jwt
-    const payload ={
-      sub : user.userId,
-      roleId : user.roleId,
-      name : user.name
-    }
+    const payload = {
+      sub: user.userId,
+      roleId: user.roleId,
+      name: user.name,
+    };
     const token = generateToken(payload);
     res.status(200).json({
       message: "Login successful",
@@ -45,24 +44,19 @@ export const loginUser = async (req: Request, res: Response) => {
 };
 
 export const createNewUser = async (req: Request, res: Response) => {
+  const { email, password, name }: UserCreateDTO = req.body;
+  const roleId = await getRoleId($Enums.Role.USER);
+  const hashedPassword = hashSecret(password);
   try {
-    const { name, email, password } = req.body;
-    if (!name || !email || !password) {
-      return res
-        .status(400)
-        .json({ message: "Name, email and password are required" });
-    }
-    const roleId = await getRoleId("GUEST"); 
-    //todo : implement role assignment
-    //todo : implement email validation
-    const newUser = await createUser({
-      name,
+    const user = await createUser({
       email,
-      password: hashSecret(password),
+      password: hashedPassword,
+      name,
       roleId,
     });
-    newUser && res.status(201).json(newUser);
+    delete user.password
+    res.status(201).json({ message: "User created successfully", user });
   } catch (error) {
-    res.status(500).json({ message: "Internal server error", error });
+    errorHandler(error, res);
   }
 };
