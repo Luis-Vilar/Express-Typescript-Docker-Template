@@ -2,7 +2,7 @@ import { Router } from "express";
 import { jwt_middleware } from "../services/jwt.services";
 import { rbacMiddleware } from "../services/rbac.services";
 import { authRouter } from "./v1/auth.routes";
-import homeRouter from "./v1/home";
+import homeRouter from "./v1/home.routes";
 import { notFoundRoute } from "./v1/notFound.routes";
 import { userPublicRouter, userReadRoutes } from "./v1/users.routes";
 
