@@ -1,15 +1,25 @@
 import { Router } from "express";
-import { getAllUsers, createNewUser } from "../../controllers/user.controllers";
-import { UserCreateDTO } from "../../dtos/user.dto";
+import { getAllUsers, createNewUser, updateOneUser } from "../../controllers/user.controllers";
+import { UserCreateDTO, UserUpdateDTO } from "../../dtos/user.dto";
 import { validationMiddleware } from "../../services/classValidator.service";
 
 const userPublicRouter = Router();
 const userReadRoutes = Router();
+const userUpdateRoutes = Router();
 
 //PRIVATE ROUTES
 userReadRoutes.get("/users", getAllUsers);
+userUpdateRoutes.put(
+  "/user/:userId",
+  validationMiddleware(UserUpdateDTO),
+  updateOneUser
+);
 
 //PUBLICS ROUTES
-userPublicRouter.post("/users", validationMiddleware(UserCreateDTO) ,createNewUser);
+userPublicRouter.post(
+  "/users",
+  validationMiddleware(UserCreateDTO),
+  createNewUser
+);
 
-export { userPublicRouter, userReadRoutes  };
+export { userPublicRouter, userReadRoutes , userUpdateRoutes};
