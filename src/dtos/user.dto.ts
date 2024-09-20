@@ -30,10 +30,8 @@ export class UserCreateDTO implements Omit<UserDTO, "userId"> {
   password: string;
 
   roleId: number;
-};
+}
 
-
-
-export type UserUpdateDTO = Partial<UserCreateDTO>;
+export class UserUpdateDTO implements Partial<UserDTO> {}
 export type UserLoginDTO = Pick<UserDTO, "email" | "password">;
 export type UserResponseDTO = Omit<UserDTO, "password">;
