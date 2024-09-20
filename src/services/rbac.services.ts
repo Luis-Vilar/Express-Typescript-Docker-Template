@@ -1,6 +1,7 @@
 import { $Enums } from "@prisma/client";
-import { NextFunction } from "express";
 import prisma from "./prisma.service";
+import { RequestWithUser } from "../types";
+import { Response, NextFunction } from "express";
 
 export async function getRoleId(role: $Enums.Role): Promise<number> {
   return (await prisma.roles.findFirst({ where: { role } })).roleId;
@@ -18,9 +19,9 @@ export async function getFullRoleDetails(roleId: number) {
   return roles;
 }
 
-export const rbacMiddleware = (RBAC_REQUIRED: $Enums.Permision[]) => {
-  return async (req: any, res: any, next: NextFunction) => {
-    const userId = req.user.userId;
+export const rbacMiddleware = (RBAC_REQUIRED: $Enums.Permission[]) => {
+  return async (req: RequestWithUser, res: Response, next: NextFunction) => {
+    const userId = req.user.sub;
 
     const user = await prisma.user.findFirst({
       where: {

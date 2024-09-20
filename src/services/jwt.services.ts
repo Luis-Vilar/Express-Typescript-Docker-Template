@@ -1,5 +1,6 @@
-import { NextFunction } from "express";
+import { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
+import { DecodedToken, RequestWithUser } from "../types";
 
 export function generateToken(payload: any) {
   return jwt.sign(payload, process.env.JWT_SECRET, {
@@ -8,33 +9,40 @@ export function generateToken(payload: any) {
 }
 
 export function verifyToken(token: string) {
-  return jwt.verify(token, process.env.JWT_SECRET);
+  const decoded  : DecodedToken = jwt.verify(token, process.env.JWT_SECRET);
+  return decoded;
 }
 
-export function decodeToken(token: string) {
+export function decodeToken(token: string)  {
   return jwt.decode(token);
 }
 
-export function getTokenFromHeader(req: any) {
+export function getTokenFromHeader(req: Request) {
   return req.headers.authorization.split(" ")[1];
 }
 
-export const jwt_middleware = (req: any, res: any, next: NextFunction) => {
+export const jwt_middleware = (
+  req: RequestWithUser,
+  res: Response,
+  next: NextFunction
+) => {
   var token;
   try {
     token = getTokenFromHeader(req);
   } catch (error) {
     return res.status(401).json({
       message: "Not token provided",
+      statusCode: 401,
     });
   }
 
   try {
-    req.user = verifyToken(token);
+    req.user  = verifyToken(token) ;
     next();
   } catch (error) {
     return res.status(401).json({
       message: "Invalid token",
+      statusCode: 401,
     });
   }
 };

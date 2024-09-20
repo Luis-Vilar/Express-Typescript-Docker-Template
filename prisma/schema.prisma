@@ -18,9 +18,9 @@ model User {
   roleId Int
 }
 
-model Permisions {
+model Permissions {
   permisionId Int       @id @default(autoincrement())
-  permision   Permision
+  permision   Permission
   description String
   role        Roles[]
 }
@@ -29,11 +29,11 @@ model Roles {
   roleId     Int          @id @default(autoincrement())
   role        Role
   description String
-  permissions Permisions[]
+  permissions Permissions[]
   users       User[]
 }
 
-enum Permision {
+enum Permission {
   CREATE
   READ
   UPDATE

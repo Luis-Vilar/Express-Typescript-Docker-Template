@@ -99,9 +99,7 @@ export const deleteOneUser = async (req: RequestWithUser, res: Response) => {
         .json({ message: "You are not authorized to delete this user" });
       //todo : add a check to see if the user is an admin and can delete other users
     }
-
     const user = await getUserById(userId);
-    console.log(user);
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
