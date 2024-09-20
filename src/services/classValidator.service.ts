@@ -3,7 +3,7 @@ import { ClassConstructor, plainToInstance } from "class-transformer";
 import { validate } from "class-validator";
 import { BadRequestError, errorHandler } from "./error.services";
 
-export default class RequestValidator {
+class RequestValidator {
   static validate = <T>(classInstance: ClassConstructor<T>) => {
     return async (req: Request, res: Response, next: NextFunction) => {
       const convertedObject = plainToInstance(classInstance, req.body);
