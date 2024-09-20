@@ -1,4 +1,4 @@
-import { UserCreateDTO, UserDTO, UserResponseDTO } from "../dtos/user.dto";
+import { UserCreateDTO, UserDTO, UserResponseDTO, UserUpdateDTO } from "../dtos/user.dto";
 import prisma from "./prisma.service";
 
 export async function createUser(data: UserCreateDTO): Promise<UserDTO> {
@@ -6,7 +6,14 @@ export async function createUser(data: UserCreateDTO): Promise<UserDTO> {
     data,
   });
 }
-
+export async function updateUser(userId: string, data: UserUpdateDTO): Promise<UserDTO> {
+  return await prisma.user.update({
+    where: {
+      userId,
+    },
+    data,
+  });
+}
 export async function deleteUser(userId: string): Promise<UserDTO> {
   return await prisma.user.delete({
     where: {
@@ -43,11 +50,26 @@ async  function getUsersByName (name: string): Promise<UserResponseDTO[]> {
       name: true,
       email: true,
       roleId: true,
+      password : false,
     },
     where: {
       name: {
         contains: name,
       },
+    },
+  });
+}
+
+export async function getUserById(userId: string): Promise<UserResponseDTO | null> {
+  return await prisma.user.findUnique({
+    where: {
+      userId,
+    },
+    select: {
+      userId: true,
+      name: true,
+      email: true,
+      roleId: true,
     },
   });
 }
