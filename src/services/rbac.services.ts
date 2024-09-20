@@ -34,6 +34,11 @@ export const rbacMiddleware = (RBAC_REQUIRED: $Enums.Permision[]) => {
         },
       },
     });
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found, are you deleted?",
+      });
+    }
     const userPermissions = user.role.permissions.map(
       (permissions) => permissions.permision
     );

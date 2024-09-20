@@ -1,18 +1,21 @@
-import { Request, Response } from "express";
-import {
-  getUserByEmail,
-  getUsers,
-  createUser,
-} from "../services/user.services";
-import { getRoleId } from "../services/rbac.services";
-
-import { hashSecret, compareSecret } from "../utils/bcrypt";
-import {generateToken} from '../services/jwt.services'
 import { $Enums } from "@prisma/client";
+import { Request, Response } from "express";
+import { UserCreateDTO, UserUpdateDTO } from "../dtos/user.dto";
+import { errorHandler } from "../services/error.services";
+import { generateToken } from "../services/jwt.services";
+import { getRoleId } from "../services/rbac.services";
+import {
+  createUser,
+  deleteUser,
+  getUserByEmail,
+  getUserById,
+  getUsers,
+  updateUser,
+} from "../services/user.services";
+import { RequestWithUser } from "../types";
+import { compareSecret, hashSecret } from "../utils/bcrypt";
 
-
-export const getAllUsers = async (req: any, res: Response) => {
- 
+export const getAllUsers = async (req: Request, res: Response) => {
   const users = await getUsers();
   users?.length > 0
     ? res.status(200).json(users)
@@ -27,17 +30,16 @@ export const loginUser = async (req: Request, res: Response) => {
   const user = await getUserByEmail(email);
 
   if (user && compareSecret(password, user.password)) {
-    //todo : implement password hashing and jwt
-    const payload ={
-      sub : user.userId,
-      roleId : user.roleId,
-      name : user.name
-    }
+    const payload = {
+      sub: user.userId,
+      roleId: user.roleId,
+      name: user.name,
+    };
     const token = generateToken(payload);
     res.status(200).json({
       message: "Login successful",
       token,
-      status: 200,
+      statusCode: 200,
     });
   } else {
     res.status(404).json({ message: "Invalid email or password" });
@@ -45,24 +47,69 @@ export const loginUser = async (req: Request, res: Response) => {
 };
 
 export const createNewUser = async (req: Request, res: Response) => {
+  const { email, password, name }: UserCreateDTO = req.body;
+  const roleId = await getRoleId($Enums.Role.USER);
+  const hashedPassword = hashSecret(password);
   try {
-    const { name, email, password } = req.body;
-    if (!name || !email || !password) {
-      return res
-        .status(400)
-        .json({ message: "Name, email and password are required" });
-    }
-    const roleId = await getRoleId("GUEST"); 
-    //todo : implement role assignment
-    //todo : implement email validation
-    const newUser = await createUser({
-      name,
+    const user = await createUser({
       email,
-      password: hashSecret(password),
+      password: hashedPassword,
+      name,
       roleId,
     });
-    newUser && res.status(201).json(newUser);
+    delete user.password;
+    res.status(201).json({ message: "User created successfully", user });
   } catch (error) {
-    res.status(500).json({ message: "Internal server error", error });
+    errorHandler(error, res);
+  }
+};
+
+export const updateOneUser = async (req: RequestWithUser, res: Response) => {
+  try {
+    const { userId } = req.params;
+    const loggedUser = req.user;
+    if (loggedUser.sub !== userId) {
+      return res
+        .status(403)
+        .json({ message: "You are not authorized to update this user" });
+    }
+    const user = await getUserById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    const userUpdateDto: UserUpdateDTO = req.body;
+    const updatedUser = await updateUser(userId, userUpdateDto);
+    delete updatedUser.password;
+    res.status(200).json({
+      message: `User whit id ${userId} has updated`,
+      changes: userUpdateDto,
+    });
+  } catch (error) {
+    errorHandler(error, res);
+  }
+};
+
+export const deleteOneUser = async (req: RequestWithUser, res: Response) => {
+  try {
+    const { userId } = req.params;
+    const loggedUser = req.user;
+    if (loggedUser.sub !== userId) {
+      return res
+        .status(403)
+        .json({ message: "You are not authorized to delete this user" });
+      //todo : add a check to see if the user is an admin and can delete other users
+    }
+
+    const user = await getUserById(userId);
+    console.log(user);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    await deleteUser(userId);
+    res
+      .status(200)
+      .json({ message: `User with id ${userId} has been deleted` });
+  } catch (error) {
+    errorHandler(error, res);
   }
 };
