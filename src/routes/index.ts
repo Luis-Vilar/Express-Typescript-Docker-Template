@@ -4,7 +4,7 @@ import { rbacMiddleware } from "../services/rbac.services";
 import { authRouter } from "./v1/auth.routes";
 import homeRouter from "./v1/home.routes";
 import { notFoundRoute } from "./v1/notFound.routes";
-import { userPublicRouter, userReadRoutes, userUpdateRoutes } from "./v1/users.routes";
+import { userPublicRouter, userReadRoutes, userUpdateRoutes, userDeleteRoutes } from "./v1/users.routes";
 
 const privateRoutes = Router();
 privateRoutes.use(jwt_middleware);
@@ -21,8 +21,9 @@ updateRoutes.use(rbacMiddleware(["UPDATE"]));
 
 readRoutes.use(userReadRoutes);
 updateRoutes.use(userUpdateRoutes);
+deleteRoutes.use(userDeleteRoutes);
 
-privateRoutes.use(readRoutes, updateRoutes); // Todo! : add createRoutes, deleteRoutes  here...
+privateRoutes.use(readRoutes, updateRoutes, deleteRoutes); // Todo! : add createRoutes
 
 //PUBLIC ROUTES
 const publicRoutes = Router();

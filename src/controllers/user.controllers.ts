@@ -6,6 +6,7 @@ import { generateToken } from "../services/jwt.services";
 import { getRoleId } from "../services/rbac.services";
 import {
   createUser,
+  deleteUser,
   getUserByEmail,
   getUserById,
   getUsers,
@@ -83,6 +84,31 @@ export const updateOneUser = async (req: RequestWithUser, res: Response) => {
       message: `User whit id ${userId} has updated`,
       changes: userUpdateDto,
     });
+  } catch (error) {
+    errorHandler(error, res);
+  }
+};
+
+export const deleteOneUser = async (req: RequestWithUser, res: Response) => {
+  try {
+    const { userId } = req.params;
+    const loggedUser = req.user;
+    if (loggedUser.sub !== userId) {
+      return res
+        .status(403)
+        .json({ message: "You are not authorized to delete this user" });
+      //todo : add a check to see if the user is an admin and can delete other users
+    }
+
+    const user = await getUserById(userId);
+    console.log(user);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    await deleteUser(userId);
+    res
+      .status(200)
+      .json({ message: `User with id ${userId} has been deleted` });
   } catch (error) {
     errorHandler(error, res);
   }

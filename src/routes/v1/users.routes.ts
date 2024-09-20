@@ -1,11 +1,12 @@
 import { Router } from "express";
-import { getAllUsers, createNewUser, updateOneUser } from "../../controllers/user.controllers";
+import { getAllUsers, createNewUser, updateOneUser, deleteOneUser } from "../../controllers/user.controllers";
 import { UserCreateDTO, UserUpdateDTO } from "../../dtos/user.dto";
 import { validationMiddleware } from "../../services/classValidator.service";
 
 const userPublicRouter = Router();
 const userReadRoutes = Router();
 const userUpdateRoutes = Router();
+const userDeleteRoutes = Router();
 
 //PRIVATE ROUTES
 userReadRoutes.get("/users", getAllUsers);
@@ -14,7 +15,7 @@ userUpdateRoutes.put(
   validationMiddleware(UserUpdateDTO),
   updateOneUser
 );
-
+userDeleteRoutes.delete("/user/:userId", deleteOneUser);
 //PUBLICS ROUTES
 userPublicRouter.post(
   "/users",
@@ -22,4 +23,4 @@ userPublicRouter.post(
   createNewUser
 );
 
-export { userPublicRouter, userReadRoutes , userUpdateRoutes};
+export { userPublicRouter, userReadRoutes , userUpdateRoutes, userDeleteRoutes};
